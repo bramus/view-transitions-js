@@ -1,0 +1,75 @@
+/* @ref https://drafts.csswg.org/css-view-transitions-1/#ua-styles */
+@layer ua-styles {
+	[data-pseudo="::view-transition"] {
+		position: fixed;
+		inset: 0;
+		z-index: 2147483647;
+		/* pointer-events: none; */
+	}
+
+	[data-pseudo^="::view-transition-group"] {
+		position: absolute;
+		top: 0;
+		left: 0;
+
+		animation-duration: 1s; /* For demo purposes this is non-spec compliant and slower than what the spec says */
+		animation-fill-mode: both;
+	}
+
+	[data-pseudo^="::view-transition-image-pair"] {
+		position: absolute;
+		inset: 0;
+
+		animation-duration: inherit;
+		animation-fill-mode: inherit;
+		animation-delay: inherit;
+	}
+
+	[data-pseudo^="::view-transition-old"],
+	[data-pseudo^="::view-transition-new"] {
+		position: absolute;
+		inset-block-start: 0;
+		inline-size: 100%;
+		block-size: auto;
+
+		animation-duration: inherit;
+		animation-fill-mode: inherit;
+		animation-delay: inherit;
+		
+		/* Non spec-compliant, because we use a canvas for the snapshots */
+		background-size: 100% 100%;
+		background-repeat: no-repeat;
+		
+		> canvas {
+			display: block;
+			inline-size: 100% !important;
+			block-size: auto !important;
+		}
+	}
+
+	/* Default cross-fade transition */
+	@keyframes -ua-view-transition-fade-out {
+		to { opacity: 0; }
+	}
+	@keyframes -ua-view-transition-fade-in {
+		from { opacity: 0; }
+	}
+
+	/* Keyframes for blending when there are 2 images */
+	@keyframes -ua-mix-blend-mode-plus-lighter {
+		from { mix-blend-mode: plus-lighter }
+		to { mix-blend-mode: plus-lighter }
+	}
+	
+	/* Hide elemements marked as “capturedInAViewTransition” while a VT is running */
+	html:has([data-pseudo="::view-transition"]) [data-captured-in-a-view-transition] {
+		visibility: hidden;
+	}
+	
+	/* Prevent --view-transition-name from inheriting */
+	@property --view-transition-name {
+		syntax: "<custom-ident>";
+		inherits: false;
+		initial-value: none;
+	}
+}
