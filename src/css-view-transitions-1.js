@@ -234,7 +234,6 @@ const capturedElementStruct = {
 // @ref https://drafts.csswg.org/css-view-transitions-1/#viewtransition-phase
 const phases = [
 	'pending-capture',
-	'setup', // non-spec compliant. This was added to prevent multipe successive calls to setupViewTransition
 	'update-callback-called',
 	'animating',
 	'done',
@@ -409,13 +408,13 @@ const skipTheViewTransition = (transition, reason) => {
 };
 
 // @ref https://drafts.csswg.org/css-view-transitions-1/#perform-pending-transition-operations-algorithm
-const performPendingOperations = () => {
+const performPendingOperations = async () => {
 	debug && console.log('performPendingOperations');
 	// 1. If document’s active view transition is not null, then:
 	if (document.activeViewTransition) {
 		// 1.1. If document’s active view transition’s phase is "pending-capture", then setup view transition for document’s active view transition.
 		if (document.activeViewTransition.phase === 'pending-capture') {
-			setupViewTransition(document.activeViewTransition);
+			await setupViewTransition(document.activeViewTransition);
 		}
 	
 		// 1.2 Otherwise, if document’s active view transition’s phase is "animating", then handle transition frame for document’s active view transition.
@@ -441,10 +440,6 @@ const performPendingOperations = () => {
 // @ref https://drafts.csswg.org/css-view-transitions-1/#setup-view-transition-algorithm instead
 const setupViewTransition = async (transition) => {
 	debug && console.log('setupViewTransition');
-	// 0. non-spec compliant: prevent double triggers of setupViewTransition by setting phase to setup
-	// @TODO: Is this a #SPECISSUE ?
-	transition.phase = 'setup';
-	
 	// 1. Let document be transition’s relevant global object’s associated document.
 	// @TODO
 	
